@@ -10,10 +10,14 @@
 | `cmd/licenses/main_test.go` | Tests |
 | `cmd/licenses/licenses/*.txt` | License texts, embedded with `go:embed` |
 | `skills/licenses-cli/SKILL.md` | Agent skill for using the CLI, installed with `npx skills add forjd/licenses-cli` |
-| `install.sh`, `install.ps1` | One-line installers. They download from the latest GitHub release and verify `checksums.txt` |
+| `install.sh`, `install.ps1` | One-line installers. They download a GitHub release (latest by default) and verify `checksums.txt` |
 | `.goreleaser.yaml` | Release builds and archives |
-| `.github/workflows/` | `ci.yml` (push to main, PRs), `release.yml` (`v*` tags) |
+| `.github/workflows/` | `ci.yml` (push to main, PRs), `release.yml` (`vX.Y.Z` tags on `main`) |
+| `.github/dependabot.yml` | Monthly updates for the SHA-pinned actions |
 | `.github/logo-*.svg`, `.github/demo.*` | README logo and demo GIF |
+| `Makefile`, `mise.toml`, `go.mod` | Build targets and pinned toolchain versions |
+| `README.md`, `LICENSE` | User docs and the project's own MIT license |
+| `CLAUDE.md` | Just `@AGENTS.md` |
 
 ## Commands
 
@@ -31,16 +35,16 @@ Before committing, run `gofmt -l .`, `go vet ./...` and `make test`.
 ## Adding a license
 
 1. Download the text from `https://raw.githubusercontent.com/github/choosealicense.com/gh-pages/_licenses/<id>.txt`.
-2. Strip the YAML front matter and save it as `cmd/licenses/licenses/<id>.txt`. Keep the `[year]` and `[fullname]` placeholders exactly as they are.
-3. Add an entry to `catalog` in `main.go` with the SPDX ID and the `title` from the front matter.
+2. Strip the YAML front matter and the blank line after it, and save it as `cmd/licenses/licenses/<id>.txt`. Keep the `[year]` and `[fullname]` placeholders exactly as they are.
+3. Add an entry to `catalog` in `main.go` with the SPDX ID, the `title` from the front matter, and any other SPDX IDs for the same text as aliases.
 4. Add it to the license table in `README.md` and the ID list in `skills/licenses-cli/SKILL.md`.
-5. Run `make test`. `TestEveryLicenseRenders` fails if a placeholder is left unreplaced.
+5. Run `make test`. `TestEveryLicenseRenders` fails if a placeholder is left unreplaced (upstream "how to apply" examples are allowlisted in the test), and `TestCatalogMatchesEmbeddedFiles` fails if the catalog and the `.txt` files disagree.
 
 ## Conventions
 
 - Use SPDX IDs everywhere. Lookups are case-insensitive.
-- Never overwrite an existing file unless `-f` is passed.
-- Print errors through `run`'s returned error. `main` prefixes them with `licenses:` and exits 1. Help goes to stdout.
+- Never overwrite an existing file unless `-f` is passed. `writeFile` creates with `O_EXCL` without `-f` and writes a temp file then renames with `-f`; keep it that way.
+- Print errors through `run`'s returned error. `main` prefixes them with `licenses:` and exits 1. Help goes to stdout; usage-on-error and warnings go to the `stderr` writer passed to `run`, never `os.Stderr` directly, so tests can see them.
 - If you change flags or output, update the usage text in `main.go`, the README, `SKILL.md`, and re-record the demo with `make demo`.
 - Keep `install.sh` POSIX `sh` and clean under `shellcheck`.
 - Archive names have no version in them (`licenses_<os>_<arch>`) so the installers can use `/releases/latest/download/`. Don't change `name_template` without updating both installers.
@@ -48,5 +52,8 @@ Before committing, run `gofmt -l .`, `go vet ./...` and `make test`.
 ## CI and releases
 
 - Workflows run on the self-hosted `forjd` runner (`runs-on: [self-hosted, forjd]`), not GitHub-hosted runners. It is Linux x64 only, so CI cross-compiles every release target instead of using an OS matrix.
-- The repo is public, so CI must never run code from fork PRs on that runner. Keep the `if:` guard in `ci.yml`.
-- To release, tag `main` with `vX.Y.Z` and push the tag. GoReleaser builds linux, darwin and windows for amd64 and arm64, then publishes the archives and `checksums.txt`. Only tag when asked.
+- The repo is public, so CI must never run code from fork PRs on that runner. Keep the `if:` guard in `ci.yml`. A fork can edit that line in its own PR, so the real protection is the org setting that requires approval for outside contributors; never approve a fork PR run without reading the diff, workflow files included.
+- Pin every action to a full commit SHA with a `# vX.Y.Z` comment. Dependabot bumps them.
+- Keep `permissions` minimal: `contents: read` in CI, write scopes only on the release job. Keep `persist-credentials: false` and `cache: false` (the runner is shared and persistent).
+- Keep the GoReleaser version in `release.yml` in step with `mise.toml`.
+- To release, tag `main` with `vX.Y.Z` and push the tag. The workflow refuses tags not on `main`. GoReleaser builds linux, darwin and windows for amd64 and arm64, publishes the archives and `checksums.txt`, then a provenance attestation is added. Only tag when asked.

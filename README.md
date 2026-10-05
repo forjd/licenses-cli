@@ -47,27 +47,31 @@ go install github.com/forjd/licenses-cli/cmd/licenses@latest
 
 **Install script options**
 
-| Variable               | Default                                         |
-| ---------------------- | ----------------------------------------------- |
-| `LICENSES_VERSION`     | `latest` (or a tag such as `v0.1.0`)            |
-| `LICENSES_INSTALL_DIR` | `/usr/local/bin` if writable, else `~/.local/bin` |
-|                        | Windows: `%LOCALAPPDATA%\Programs\licenses`     |
+| Variable                | Default                                           |
+| ----------------------- | ------------------------------------------------- |
+| `LICENSES_VERSION`      | `latest` (or a tag such as `v0.1.0`)              |
+| `LICENSES_INSTALL_DIR`  | `/usr/local/bin` if writable, else `~/.local/bin` |
+|                         | Windows: `%LOCALAPPDATA%\Programs\licenses`       |
+| `LICENSES_DOWNLOAD_URL` | GitHub releases (set it to use a mirror; `checksums.txt` comes from the mirror too) |
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/forjd/licenses-cli/main/install.sh | LICENSES_VERSION=v0.1.0 sh
 ```
 
-Both scripts verify the download against the release's `checksums.txt` before installing.
+Both scripts verify the download against the release's `checksums.txt` before installing. Releases also carry a [build provenance attestation](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations): check an archive with `gh attestation verify licenses_linux_amd64.tar.gz -R forjd/licenses-cli`.
+
+If you download `install.ps1` and run it as a file instead of piping it to `iex`, you may need `powershell -ExecutionPolicy Bypass -File install.ps1`.
 
 </details>
 
 ## Usage
 
 ```sh
-licenses list                     # show available licenses
+licenses list                     # show available licenses (or: licenses ls)
 licenses mit -n "Jane Doe"        # write ./LICENSE
 licenses apache-2.0               # holder defaults to `git config user.name`
 licenses bsd-3-clause -y 2019     # set the year (default: this year)
+licenses isc -y 2019-2024         # or a range
 licenses mpl-2.0 -o LICENSE.txt   # choose the output file
 licenses isc -o -                 # print to stdout
 licenses mit -f                   # overwrite an existing LICENSE
@@ -76,14 +80,17 @@ licenses mit -f                   # overwrite an existing LICENSE
 | Flag             | Description                                   |
 | ---------------- | --------------------------------------------- |
 | `-n`, `-name`    | Copyright holder (default: git `user.name`)   |
-| `-y`, `-year`    | Copyright year (default: current year)        |
+| `-y`, `-year`    | Copyright year or range, e.g. `2019-2024` (default: current year) |
 | `-o`, `-out`     | Output file, or `-` for stdout (default `LICENSE`) |
 | `-f`, `-force`   | Overwrite an existing file                    |
 | `-version`       | Print the version                             |
+| `-h`, `-help`    | Show help (also `licenses help`)              |
+
+Flags can go before or after the ID. Quote names that contain spaces: `-n "Jane Doe"`.
 
 ## Licenses
 
-License IDs follow [SPDX](https://spdx.org/licenses/) and are not case-sensitive.
+License IDs follow [SPDX](https://spdx.org/licenses/) and are not case-sensitive. The GPL family also accepts the current SPDX forms, such as `GPL-3.0-only` and `GPL-3.0-or-later`; the license text is the same either way. Use one of those forms in package manifests, since the bare `GPL-3.0` ID is deprecated.
 
 | ID             | License                                    |
 | -------------- | ------------------------------------------ |
@@ -116,7 +123,7 @@ You can also install it with the [`skills`](https://github.com/vercel-labs/skill
 
 ## Development
 
-Needs Go 1.27+. Run `mise install` to get the pinned toolchain.
+Needs Go 1.27.1+. Run `mise install` to get the pinned toolchain.
 
 ```sh
 make test    # run tests
@@ -125,7 +132,7 @@ make dist    # snapshot release for every platform (needs goreleaser)
 make demo    # re-record the README demo GIF (needs Docker)
 ```
 
-Pushing a `v*` tag runs [GoReleaser](https://goreleaser.com) in GitHub Actions, which publishes the archives to a GitHub release:
+Pushing a `vX.Y.Z` tag on a commit in `main` runs [GoReleaser](https://goreleaser.com) in GitHub Actions, which publishes the archives to a GitHub release:
 
 ```sh
 git tag v0.1.0 && git push origin v0.1.0

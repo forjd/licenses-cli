@@ -1,6 +1,9 @@
-<div align="center">
-
-# licenses
+```text
+▜ ▗
+▐ ▄ ▞▀▖▞▀▖▛▀▖▞▀▘▞▀▖▞▀▘
+▐ ▐ ▌ ▖▛▀ ▌ ▌▝▀▖▛▀ ▝▀▖
+ ▘▀▘▝▀ ▝▀▘▘ ▘▀▀ ▝▀▘▀▀
+```
 
 **Write a LICENSE file with the year and copyright holder filled in.**
 
@@ -10,8 +13,6 @@ A single binary with no dependencies, for macOS, Linux and Windows.
 [![CI](https://github.com/forjd/licenses-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/forjd/licenses-cli/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/github/go-mod/go-version/forjd/licenses-cli)](go.mod)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-
-</div>
 
 ```console
 $ licenses mit -n "Jane Doe"

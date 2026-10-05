@@ -34,6 +34,27 @@ curl -fsSL https://raw.githubusercontent.com/forjd/licenses-cli/main/install.sh 
 irm https://raw.githubusercontent.com/forjd/licenses-cli/main/install.ps1 | iex
 ```
 
+**With an AI agent:** paste this into Claude Code, Codex, Cursor or similar to install the CLI and the [agent skill](#agent-skill).
+
+```text
+Install the licenses CLI and its agent skill for me.
+
+1. Install the CLI with the official one-liner for my OS:
+   - macOS / Linux: curl -fsSL https://raw.githubusercontent.com/forjd/licenses-cli/main/install.sh | sh
+   - Windows (PowerShell): irm https://raw.githubusercontent.com/forjd/licenses-cli/main/install.ps1 | iex
+   Then run `licenses -version`. If it is not found, tell me which directory to add to my PATH.
+
+2. Install the skill at user level, for the agent you are running as:
+   - If `npx` or `bunx` is available, run one of:
+     npx skills add forjd/licenses-cli -g -y -a <your agent, e.g. claude-code>
+     bunx skills add forjd/licenses-cli -g -y -a <your agent, e.g. claude-code>
+   - Otherwise, download https://raw.githubusercontent.com/forjd/licenses-cli/main/skills/licenses-cli/SKILL.md
+     into your personal skills directory as licenses-cli/SKILL.md
+     (for Claude Code: ~/.claude/skills/licenses-cli/SKILL.md).
+
+3. Tell me what you installed and where, and whether I need to restart you for the skill to load.
+```
+
 <details>
 <summary>Other ways to install</summary>
 
@@ -119,7 +140,7 @@ mkdir -p ~/.claude/skills/licenses-cli && curl -fsSL \
   -o ~/.claude/skills/licenses-cli/SKILL.md
 ```
 
-You can also install it with the [`skills`](https://github.com/vercel-labs/skills) CLI: `npx skills add forjd/licenses-cli`.
+You can also install it with the [`skills`](https://github.com/vercel-labs/skills) CLI: `npx skills add forjd/licenses-cli` (or `bunx skills add forjd/licenses-cli`), or let your agent install the CLI and the skill together with the [agent prompt](#install).
 
 ## Development
 

@@ -41,6 +41,13 @@ var catalog = []license{
 	{"Unlicense", "The Unlicense", "unlicense.txt"},
 }
 
+// banner is figlet -f small "licenses".
+const banner = ` _ _
+| (_)__ ___ _ _  ___ ___ ___
+| | / _/ -_) ' \(_-</ -_|_-<
+|_|_\__\___|_||_/__/\___/__/
+`
+
 const usage = `licenses - generate a LICENSE file
 
 Usage:
@@ -53,6 +60,7 @@ Flags:
   -o, -out string    output file, "-" for stdout (default "LICENSE")
   -f, -force         overwrite an existing file
   -version           print version
+  -h, -help          show this help
 `
 
 func main() {
@@ -70,7 +78,9 @@ func run(args []string, stdout io.Writer) error {
 	}
 
 	fs := flag.NewFlagSet("licenses", flag.ContinueOnError)
-	fs.Usage = func() { fmt.Fprint(os.Stderr, usage) }
+	// Help and errors are printed by run, not by the flag package.
+	fs.SetOutput(io.Discard)
+	fs.Usage = func() {}
 	var name, year, out string
 	var force, showVersion bool
 	for _, n := range []string{"n", "name"} {
@@ -88,9 +98,10 @@ func run(args []string, stdout io.Writer) error {
 	fs.BoolVar(&showVersion, "version", false, "")
 	if err := fs.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
+			printHelp(stdout)
 			return nil
 		}
-		return err
+		return fmt.Errorf("%w (run 'licenses -help')", err)
 	}
 	if id == "" && fs.NArg() > 0 {
 		id = fs.Arg(0)
@@ -106,7 +117,7 @@ func run(args []string, stdout io.Writer) error {
 	case id == "list" || id == "ls":
 		return list(stdout)
 	case id == "help":
-		fmt.Fprint(stdout, usage)
+		printHelp(stdout)
 		return nil
 	}
 
@@ -139,6 +150,10 @@ func run(args []string, stdout io.Writer) error {
 		fmt.Fprintln(os.Stderr, "warning: no name given; use -n to set the copyright holder")
 	}
 	return nil
+}
+
+func printHelp(w io.Writer) {
+	fmt.Fprintf(w, "%s%s\n\n%s", banner, version, usage)
 }
 
 func find(id string) (license, bool) {

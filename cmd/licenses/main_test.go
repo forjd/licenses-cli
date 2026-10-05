@@ -41,3 +41,15 @@ func TestUnknownLicense(t *testing.T) {
 		t.Error("expected error")
 	}
 }
+
+func TestHelpShowsBanner(t *testing.T) {
+	for _, args := range [][]string{{"-help"}, {"-h"}, {"help"}} {
+		var buf bytes.Buffer
+		if err := run(args, &buf); err != nil {
+			t.Fatalf("%v: %v", args, err)
+		}
+		if !strings.HasPrefix(buf.String(), banner) || !strings.Contains(buf.String(), "Usage:") {
+			t.Errorf("%v: unexpected help:\n%s", args, buf.String())
+		}
+	}
+}

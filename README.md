@@ -16,15 +16,9 @@ A single binary with no dependencies, for macOS, Linux and Windows.
 
 </div>
 
-```console
-$ licenses mit -n "Jane Doe"
-Wrote LICENSE (MIT)
-
-$ head -3 LICENSE
-MIT License
-
-Copyright (c) 2026 Jane Doe
-```
+<p align="center">
+  <img src=".github/demo.gif" alt="Demo: licenses -h, licenses list, then licenses mit -n &quot;Jane Doe&quot; writes an MIT LICENSE and refuses to overwrite it" width="800">
+</p>
 
 ## Install
 
@@ -128,6 +122,7 @@ Needs Go 1.27+. Run `mise install` to get the pinned toolchain.
 make test    # run tests
 make build   # build bin/licenses
 make dist    # snapshot release for every platform (needs goreleaser)
+make demo    # re-record the README demo GIF (needs Docker)
 ```
 
 Pushing a `v*` tag runs [GoReleaser](https://goreleaser.com) in GitHub Actions, which publishes the archives to a GitHub release:

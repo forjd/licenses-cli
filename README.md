@@ -1,10 +1,10 @@
 <div align="center">
 
-# 📜 licenses
+# licenses
 
-**Drop a proper LICENSE file into any project with a single command.**
+**Write a LICENSE file with the year and copyright holder filled in.**
 
-One small binary with no dependencies. Works on macOS, Linux and Windows.
+A single binary with no dependencies, for macOS, Linux and Windows.
 
 [![Release](https://img.shields.io/github/v/release/forjd/licenses-cli?sort=semver)](https://github.com/forjd/licenses-cli/releases/latest)
 [![CI](https://github.com/forjd/licenses-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/forjd/licenses-cli/actions/workflows/ci.yml)
@@ -53,13 +53,14 @@ go install github.com/forjd/licenses-cli/cmd/licenses@latest
 | Variable               | Default                                         |
 | ---------------------- | ----------------------------------------------- |
 | `LICENSES_VERSION`     | `latest` (or a tag such as `v0.1.0`)            |
-| `LICENSES_INSTALL_DIR` | `/usr/local/bin` if writable, else `~/.local/bin`. On Windows, `%LOCALAPPDATA%\Programs\licenses` |
+| `LICENSES_INSTALL_DIR` | `/usr/local/bin` if writable, else `~/.local/bin` |
+|                        | Windows: `%LOCALAPPDATA%\Programs\licenses`     |
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/forjd/licenses-cli/main/install.sh | LICENSES_VERSION=v0.1.0 sh
 ```
 
-The scripts check each download against the release's `checksums.txt` before installing.
+Both scripts verify the download against the release's `checksums.txt` before installing.
 
 </details>
 
@@ -101,11 +102,11 @@ License IDs follow [SPDX](https://spdx.org/licenses/) and are not case-sensitive
 | `0BSD`         | BSD Zero Clause License                    |
 | `Unlicense`    | The Unlicense                              |
 
-The texts come from [choosealicense.com](https://choosealicense.com) and are built into the binary, so the CLI works offline.
+The texts come from [choosealicense.com](https://choosealicense.com) and are compiled into the binary, so the CLI works offline.
 
-## 🤖 Agent skill
+## Agent skill
 
-[`skills/licenses-cli`](skills/licenses-cli/SKILL.md) teaches AI coding agents such as Claude Code to use the CLI. It covers choosing the license and holder, avoiding accidental overwrites, and updating `package.json` and other manifests to match.
+[`skills/licenses-cli`](skills/licenses-cli/SKILL.md) tells AI coding agents such as Claude Code how to use the CLI: which license and holder to pick, when to overwrite an existing file, and which manifest fields to update to match.
 
 ```sh
 # Claude Code (personal skills)
@@ -126,7 +127,7 @@ make build   # build bin/licenses
 make dist    # snapshot release for every platform (needs goreleaser)
 ```
 
-To release, push a tag. GitHub Actions then runs [GoReleaser](https://goreleaser.com) and publishes the archives:
+Pushing a `v*` tag runs [GoReleaser](https://goreleaser.com) in GitHub Actions, which publishes the archives to a GitHub release:
 
 ```sh
 git tag v0.1.0 && git push origin v0.1.0
